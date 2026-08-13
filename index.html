@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<title>想不想我 · 爱不爱我 💕</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --pink:#ff4d7d;
+    --pink-deep:#ff2d6a;
+    --purple:#8b5cf6;
+    --gray:#cbd5e1;
+    --text:#4c2a52;
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{ height:100%; }
+  body{
+    font-family:"ZCOOL KuaiLe","PingFang SC","Microsoft YaHei","Hiragino Sans GB",sans-serif;
+    color:var(--text);
+    background:linear-gradient(160deg,#ffd9e8 0%,#ffb6d5 35%,#e0c3fc 70%,#c3b0ff 100%);
+    background-attachment:fixed;
+    overflow:hidden;
+    user-select:none;
+    -webkit-user-select:none;
+  }
+
+  /* ===== 背景浮动爱心 ===== */
+  #bg-hearts{ position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden; }
+  .bg-heart{
+    position:absolute; bottom:-8vh; opacity:.25; animation:floatUp linear infinite;
+    filter:drop-shadow(0 2px 6px rgba(255,77,125,.25));
+  }
+  @keyframes floatUp{
+    0%{ transform:translateY(0) rotate(0deg) scale(.8); opacity:0; }
+    10%{ opacity:.28; }
+    90%{ opacity:.22; }
+    100%{ transform:translateY(-115vh) rotate(20deg) scale(1.15); opacity:0; }
+  }
+
+  /* ===== 关卡 ===== */
+  .level{
+    position:relative; z-index:1; height:100%; height:100dvh;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:24px; text-align:center;
+    opacity:0; transform:scale(.96); pointer-events:none;
+    transition:opacity .45s ease, transform .45s ease;
+  }
+  .level.active{ opacity:1; transform:scale(1); pointer-events:auto; }
+  .level .q{
+    font-size:clamp(30px,8vw,52px); font-weight:700; line-height:1.25;
+    text-shadow:0 2px 10px rgba(255,255,255,.7);
+    margin-bottom:6px;
+  }
+  .level .sub{
+    font-size:clamp(14px,3.6vw,17px); color:#9a6a8f; margin-bottom:34px; letter-spacing:.5px;
+  }
+
+  .btn-row{ display:flex; align-items:center; justify-content:center; gap:22px; flex-wrap:wrap; }
+  .yes-wrap{ transition:transform .28s ease; transform-origin:center; }
+
+  .btn{
+    border:none; cursor:pointer; font-family:inherit; touch-action:manipulation;
+    transition:transform .18s ease, left .22s ease, top .22s ease, opacity .3s ease, filter .2s;
+    white-space:nowrap; will-change:transform;
+  }
+  .btn:active{ transform:scale(.94); }
+
+  .btn-yes{
+    font-size:clamp(22px,5.4vw,30px); font-weight:700; color:#fff;
+    padding:18px 46px; border-radius:999px;
+    background:linear-gradient(135deg,#ff8fb3 0%,var(--pink) 50%,var(--pink-deep) 100%);
+    box-shadow:0 10px 28px rgba(255,45,106,.45), 0 2px 8px rgba(255,45,106,.3);
+    animation:heartbeat 1.6s ease-in-out infinite;
+  }
+  .btn-yes:hover{ filter:brightness(1.05); }
+  @keyframes heartbeat{
+    0%,100%{ transform:scale(1); }
+    14%{ transform:scale(1.07); }
+    28%{ transform:scale(1); }
+    42%{ transform:scale(1.07); }
+    70%{ transform:scale(1); }
+  }
+
+  .btn-no{
+    font-size:clamp(15px,3.8vw,18px); color:#8a93a5;
+    padding:13px 26px; border-radius:999px;
+    background:#f1f3f7; border:1px solid #e3e7ee;
+    box-shadow:0 2px 8px rgba(0,0,0,.05);
+  }
+  .btn-no.hidden{ display:none; }
+
+  .tease{
+    margin-top:30px; height:26px; font-size:clamp(15px,3.9vw,18px); color:#e2477a; font-weight:700;
+    opacity:0; transition:opacity .2s;
+  }
+  .tease.show{ opacity:1; animation:teasePop .35s ease; }
+  @keyframes teasePop{ 0%{ transform:scale(.7); } 60%{ transform:scale(1.15); } 100%{ transform:scale(1); } }
+
+  /* ===== 成功浮层文字 ===== */
+  #success-msg{
+    position:fixed; inset:0; z-index:60; display:flex; align-items:center; justify-content:center;
+    pointer-events:none; opacity:0; transition:opacity .3s;
+  }
+  #success-msg.show{ opacity:1; }
+  #success-msg .inner{
+    font-size:clamp(26px,7vw,40px); font-weight:700; color:#fff;
+    text-shadow:0 3px 16px rgba(255,45,106,.55);
+    padding:22px 34px; border-radius:24px;
+    background:rgba(255,77,125,.22); backdrop-filter:blur(6px);
+    transform:scale(.7); transition:transform .4s cubic-bezier(.175,.885,.32,1.4);
+  }
+  #success-msg.show .inner{ transform:scale(1); }
+
+  /* ===== 首次打开填写名字 ===== */
+  #setup{
+    position:fixed; inset:0; z-index:200; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(160deg,#ffd9e8 0%,#ffb6d5 40%,#e0c3fc 100%); padding:20px;
+  }
+  #setup.hidden{ display:none; }
+  .setup-card{
+    background:rgba(255,255,255,.78); backdrop-filter:blur(8px); border-radius:24px;
+    padding:30px 26px; width:min(340px,92vw); text-align:center;
+    box-shadow:0 16px 50px rgba(139,92,246,.32);
+    display:flex; flex-direction:column; align-items:center; gap:13px;
+  }
+  .setup-title{ font-size:26px; font-weight:700; color:#4c2a52; }
+  .setup-sub{ font-size:13px; color:#9a6a8f; margin-top:-6px; }
+  .setup-input{
+    width:100%; font-family:inherit; font-size:18px; color:#4c2a52; text-align:center;
+    padding:13px 16px; border-radius:16px; border:2px solid #ffb6d5; background:#fff; outline:none;
+  }
+  .setup-input:focus{ border-color:var(--pink); }
+  .setup-skip{ font-size:14px; color:#b06a9a; cursor:pointer; text-decoration:underline; }
+
+  /* ===== 第3关 ===== */
+  #level-3{
+    justify-content:flex-start; overflow-y:auto; -webkit-overflow-scrolling:touch;
+    padding:24px;
+  }
+  .l3-inner{
+    margin:auto; width:100%; max-width:520px;
+    display:flex; flex-direction:column; align-items:center;
+  }
+  .date-input{
+    font-family:inherit; font-size:20px; color:#e2477a; text-align:center;
+    padding:12px 18px; border-radius:16px; border:2px solid #ffb6d5; background:#fff;
+    outline:none; width:220px; margin-bottom:18px;
+  }
+  .days-num{ font-size:clamp(26px,7vw,40px); font-weight:700; color:var(--pink-deep); line-height:1.1; }
+  .days-line{ font-size:clamp(15px,4vw,18px); color:#9a6a8f; margin:8px 0 22px; }
+  .far-line{ font-size:clamp(14px,3.8vw,16px); color:#8a5d7d; max-width:460px; line-height:1.7; margin-bottom:22px; }
+
+  /* 分享卡片预览 */
+  .card{
+    width:min(300px,80vw); aspect-ratio:5/7;
+    border-radius:22px; padding:26px 24px;
+    background:linear-gradient(155deg,#ffb6d5 0%,#e0c3fc 55%,#b7a4ff 100%);
+    box-shadow:0 16px 44px rgba(139,92,246,.35);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    position:relative; overflow:hidden; margin-bottom:22px;
+    border:3px solid rgba(255,255,255,.7);
+  }
+  .card .dots{
+    position:absolute; inset:0; pointer-events:none;
+    background-image:radial-gradient(rgba(255,255,255,.5) 1.5px, transparent 1.5px);
+    background-size:18px 18px; opacity:.35;
+  }
+  .heart-shape{ position:relative; width:22px; height:22px; background:#ff2d6a; transform:rotate(-45deg); margin:6px 12px 14px; }
+  .heart-shape::before,.heart-shape::after{ content:''; position:absolute; width:22px; height:22px; border-radius:50%; background:#ff2d6a; }
+  .heart-shape::before{ top:-11px; left:0; }
+  .heart-shape::after{ left:11px; top:0; }
+  .card .names{ font-size:clamp(18px,5vw,24px); font-weight:700; color:#fff; text-shadow:0 2px 8px rgba(255,45,106,.5); }
+  .card .big-days{ font-size:clamp(52px,16vw,74px); font-weight:700; color:#fff; line-height:1; text-shadow:0 3px 12px rgba(255,45,106,.55); }
+  .card .unit{ font-size:clamp(15px,4.4vw,18px); color:#fff; margin-top:2px; }
+  .card .since{ font-size:clamp(13px,3.6vw,15px); color:#fff; opacity:.9; margin-top:16px; }
+  .card .quote{ font-size:clamp(12px,3.4vw,14px); color:#fff; opacity:.9; margin-top:10px; line-height:1.7; max-width:250px; }
+
+  .btn-share{
+    border:none; cursor:pointer; font-family:inherit; font-size:18px; font-weight:700; color:#fff;
+    padding:15px 36px; border-radius:999px;
+    background:linear-gradient(135deg,#8b5cf6,#6d28d9);
+    box-shadow:0 10px 24px rgba(109,40,217,.4);
+    touch-action:manipulation;
+  }
+  .btn-share:active{ transform:scale(.96); }
+  .btn-share:disabled{ opacity:.5; }
+
+  /* ===== 粒子层 ===== */
+  .fx{ position:fixed; inset:0; pointer-events:none; z-index:70; overflow:hidden; }
+  .fx span{ position:absolute; top:-8vh; display:inline-block; animation:fall linear forwards; }
+  @keyframes fall{
+    to{ transform:translateY(118vh) rotate(360deg); }
+  }
+  .confetti-piece{
+    position:absolute; top:-20px; width:10px; height:16px;
+    animation:fallC linear forwards;
+  }
+  @keyframes fallC{
+    to{ transform:translateY(120vh) rotate(720deg); }
+  }
+
+  /* ===== 分享结果弹层 ===== */
+  #share-modal{
+    position:fixed; inset:0; z-index:100; display:none; align-items:center; justify-content:center;
+    background:rgba(60,20,60,.6); backdrop-filter:blur(4px); padding:20px;
+  }
+  #share-modal.show{ display:flex; }
+  #share-modal img{
+    max-width:min(360px,88vw); max-height:78vh; border-radius:18px;
+    box-shadow:0 20px 60px rgba(0,0,0,.4);
+  }
+  #share-modal .tip{ color:#fff; text-align:center; font-size:14px; margin-top:14px; }
+  .fade-in{ animation:fadeIn .35s ease; }
+  @keyframes fadeIn{ from{ opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;} }
+</style>
+</head>
+<body>
+
+  <!-- 首次打开：填写名字（只存手机本地） -->
+  <div id="setup">
+    <div class="setup-card">
+      <div class="heart-shape" style="margin:0 auto 4px;"></div>
+      <div class="setup-title">先认识一下你们俩～</div>
+      <div class="setup-sub">只存在你自己的手机里，不会上传</div>
+      <input id="setup-me" class="setup-input" placeholder="你的名字" maxlength="12" />
+      <input id="setup-other" class="setup-input" placeholder="Ta 的名字" maxlength="12" />
+      <button id="setup-go" class="btn-share">开始吧 💕</button>
+      <div id="setup-skip" class="setup-skip">先跳过，用「我 / 宝贝」</div>
+    </div>
+  </div>
+
+  <div id="bg-hearts"></div>
+
+  <!-- 第1关 -->
+  <section class="level active" id="level-1">
+    <div class="q">想不想我？</div>
+    <div class="sub">（不准说不想哦）</div>
+    <div class="btn-row">
+      <button class="btn btn-yes" id="yes-1">想 ❤️</button>
+      <button class="btn btn-no" id="no-1">不想 💔</button>
+    </div>
+    <div class="tease" id="tease-1"></div>
+  </section>
+
+  <!-- 第2关 -->
+  <section class="level" id="level-2">
+    <div class="q">爱不爱我？</div>
+    <div class="sub">（想清楚再回答哦）</div>
+    <div class="btn-row">
+      <div class="yes-wrap" id="yes-2-wrap">
+        <button class="btn btn-yes" id="yes-2">爱 🥰</button>
+      </div>
+      <button class="btn btn-no" id="no-2">不爱 🙅</button>
+    </div>
+    <div class="tease" id="tease-2"></div>
+  </section>
+
+  <!-- 第3关 -->
+  <section class="level" id="level-3">
+    <div class="l3-inner">
+    <div class="q" style="font-size:clamp(24px,6.5vw,40px);">那我们从哪一天开始<br/>算在一起呀？</div>
+    <div class="sub">选个日子，我来帮你数天数～</div>
+    <input type="date" class="date-input" id="date-input" />
+    <div class="days-num" id="days-num">已经在一起 0 天啦！</div>
+    <div class="days-line" id="days-line">异地 0 天，想你无数次，爱你更多次 ❤️</div>
+    <div class="far-line">虽然暂时不能见面，但爱没有距离。<br/>等我，很快就来找你！</div>
+
+    <!-- 分享卡片（即预览） -->
+    <div class="card" id="share-card">
+      <div class="dots"></div>
+      <div class="heart-shape"></div>
+      <div class="names" id="card-names">我 ❤️ 宝贝</div>
+      <div class="big-days" id="card-days">0</div>
+      <div class="unit">天在一起啦</div>
+      <div class="since" id="card-since">始于 ❤️</div>
+      <div class="quote">异地 <span id="card-apart">0</span> 天，想你无数次，爱你更多次。虽然暂时不能见面，但爱没有距离 ❤️</div>
+    </div>
+
+    <button class="btn-share" id="btn-share">生成分享卡片</button>
+    </div>
+  </section>
+
+  <div id="success-msg"><div class="inner" id="success-text"></div></div>
+
+  <div id="share-modal">
+    <div style="display:flex;flex-direction:column;align-items:center;">
+      <img id="share-img" class="fade-in" alt="分享卡片" />
+      <div class="tip">长按图片即可保存，发给 Ta 吧 💕</div>
+    </div>
+  </div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ================= 配置（想改就改这里） =================
+  const CONFIG = {
+    couple: {
+      myName: "我",    // 占位名（真实名字在首次打开时填写，存在手机本地，不会出现在代码/公开仓库里）
+      herName: "宝贝", // 占位名
+      startDate: "",   // 留空：纪念日在第3关由手机本地选择，不写死在代码里（隐私）
+      apartDate: ""    // 留空：默认与 startDate 相同
+    },
+    levels: [
+      {
+        question: "想不想我？",
+        noEscapeTexts: ["骗人~", "你明明就想我~", "再想想嘛~", "点上面那个啦~"],
+        successText: "我就知道！"
+      },
+      {
+        question: "爱不爱我？",
+        noEscapeTexts: [
+          "你舍得说不爱吗~",
+          "我那么想你，你就爱我嘛~",
+          "不爱我我会难过的 😢",
+          "点左边那个，乖~",
+          "隔着屏幕也要爱我哦~"
+        ],
+        successText: "我就知道，我也超级爱你 ❤️"
+      }
+    ]
+  };
+  // =======================================================
+
+  const $ = (id) => document.getElementById(id);
+  const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+  const VIEWPORT = () => ({ w: window.innerWidth, h: window.innerHeight });
+
+  // ---------- 音效（Web Audio，零依赖） ----------
+  let audioCtx = null;
+  function ensureAudio(){
+    if (!audioCtx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (AC) audioCtx = new AC();
+    }
+    if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+  }
+  function playChime(){
+    ensureAudio();
+    if (!audioCtx) return;
+    const now = audioCtx.currentTime;
+    [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = "sine";
+      osc.frequency.value = f;
+      const t = now + i * 0.11;
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.linearRampToValueAtTime(0.18, t + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.5);
+      osc.connect(gain).connect(audioCtx.destination);
+      osc.start(t);
+      osc.stop(t + 0.55);
+    });
+  }
+
+  // ---------- 背景浮动爱心 ----------
+  function initBgHearts(){
+    const wrap = $("bg-hearts");
+    const emojis = ["❤️","💕","💗","💖","💘"];
+    for (let i = 0; i < 14; i++) {
+      const s = document.createElement("span");
+      s.className = "bg-heart";
+      s.textContent = pick(emojis);
+      s.style.left = (Math.random() * 100) + "%";
+      s.style.fontSize = (14 + Math.random() * 22) + "px";
+      s.style.animationDuration = (12 + Math.random() * 14) + "s";
+      s.style.animationDelay = (-Math.random() * 20) + "s";
+      wrap.appendChild(s);
+    }
+  }
+
+  // ---------- 粒子：爱心雨 / 彩纸 ----------
+  function heartRain(count){
+    const fx = document.createElement("div");
+    fx.className = "fx";
+    const emojis = ["❤️","💖","💕","💗","💘","💝"];
+    for (let i = 0; i < count; i++) {
+      const s = document.createElement("span");
+      s.textContent = pick(emojis);
+      s.style.left = (Math.random() * 100) + "%";
+      s.style.fontSize = (16 + Math.random() * 26) + "px";
+      s.style.animationDuration = (2.2 + Math.random() * 2.8) + "s";
+      s.style.animationDelay = (Math.random() * 1.6) + "s";
+      fx.appendChild(s);
+    }
+    document.body.appendChild(fx);
+    setTimeout(() => fx.remove(), 7000);
+  }
+  function confetti(count){
+    const fx = document.createElement("div");
+    fx.className = "fx";
+    const colors = ["#ff4d7d","#ff8fb3","#8b5cf6","#ffd166","#4dd4f6","#7ae582"];
+    for (let i = 0; i < count; i++) {
+      const c = document.createElement("div");
+      c.className = "confetti-piece";
+      c.style.left = (Math.random() * 100) + "%";
+      c.style.background = pick(colors);
+      c.style.animationDuration = (2 + Math.random() * 2.5) + "s";
+      c.style.animationDelay = (Math.random() * 1.2) + "s";
+      c.style.borderRadius = Math.random() > 0.5 ? "50%" : "2px";
+      c.style.transform = "rotate(" + (Math.random() * 360) + "deg)";
+      fx.appendChild(c);
+    }
+    document.body.appendChild(fx);
+    setTimeout(() => fx.remove(), 6000);
+  }
+
+  // ---------- 通用：按钮瞬移（不越界、不压到 yes） ----------
+  function teleport(noEl, yesEl){
+    const m = 14;
+    const { w, h } = VIEWPORT();
+    const nw = noEl.offsetWidth || 90;
+    const nh = noEl.offsetHeight || 44;
+    const maxX = Math.max(m, w - nw - m);
+    const maxY = Math.max(m, h - nh - m);
+    const yr = yesEl.getBoundingClientRect();
+    const pad = 24;
+    const yrL = yr.left - pad, yrR = yr.right + pad, yrT = yr.top - pad, yrB = yr.bottom + pad;
+
+    noEl.style.position = "fixed";
+    let x, y;
+    for (let i = 0; i < 30; i++) {
+      x = m + Math.random() * (maxX - m);
+      y = m + Math.random() * (maxY - m);
+      const overlap = x < yrR && x + nw > yrL && y < yrB && y + nh > yrT;
+      if (!overlap) break;
+      // 若仍重叠，退到角落
+      if (i === 29) { x = m; y = m; }
+    }
+    noEl.style.left = x + "px";
+    noEl.style.top = y + "px";
+  }
+
+  function showTease(id, text){
+    const el = $(id);
+    el.textContent = text;
+    el.classList.remove("show");
+    void el.offsetWidth; // 重触发动画
+    el.classList.add("show");
+  }
+
+  function showSuccess(text, ms){
+    const msg = $("success-msg");
+    $("success-text").textContent = text;
+    msg.classList.add("show");
+    return new Promise((res) => setTimeout(res, ms));
+  }
+
+  // ---------- 关卡切换 ----------
+  function showLevel(n){
+    ["level-1","level-2","level-3"].forEach((id, i) => {
+      $(id).classList.toggle("active", i === n);
+    });
+  }
+
+  // ---------- 第1关 ----------
+  (function initLevel1(){
+    const no = $("no-1"), yes = $("yes-1");
+    let last = 0;
+    function run(e){
+      if (e && e.cancelable) e.preventDefault();
+      const now = Date.now();
+      if (now - last < 160) return;
+      last = now;
+      teleport(no, yes);
+      showTease("tease-1", pick(CONFIG.levels[0].noEscapeTexts));
+    }
+    no.addEventListener("mouseenter", run);
+    no.addEventListener("touchstart", run, { passive: false });
+    no.addEventListener("click", run);
+
+    yes.addEventListener("click", async () => {
+      playChime();
+      heartRain(60);
+      await showSuccess(CONFIG.levels[0].successText, 1000);
+      $("success-msg").classList.remove("show");
+      showLevel(1);
+    });
+  })();
+
+  // ---------- 第2关 ----------
+  (function initLevel2(){
+    const no = $("no-2"), yes = $("yes-2"), wrap = $("yes-2-wrap");
+    let yesScale = 1, noScale = 1;
+    let last = 0;
+
+    function reset(){
+      yesScale = 1; noScale = 1;
+      wrap.style.transform = "scale(1)";
+      no.style.transform = "rotate(0deg) scale(1)";
+      no.style.position = "";
+      no.style.left = ""; no.style.top = "";
+      no.classList.remove("hidden");
+    }
+
+    function escape(e){
+      if (no.classList.contains("hidden")) return;
+      if (e && e.cancelable) e.preventDefault();
+      const now = Date.now();
+      if (now - last < 200) return;
+      last = now;
+
+      // 缩放变化
+      yesScale = Math.min(yesScale * 1.15, 3.2);
+      noScale = Math.max(noScale * 0.9, 0.2);
+      wrap.style.transform = "scale(" + yesScale + ")";
+      no.style.transform = "rotate(" + (Math.random() * 15 * (Math.random() > .5 ? 1 : -1)).toFixed(1) + "deg) scale(" + noScale + ")";
+
+      teleport(no, yes);
+      showTease("tease-2", pick(CONFIG.levels[1].noEscapeTexts));
+
+      // 当“爱”大到一定程度，“不爱”消失（上限 340px，手机/电脑都适用）
+      const maxW = Math.min(VIEWPORT().w * 0.6, 340);
+      if (yes.getBoundingClientRect().width >= maxW) {
+        no.classList.add("hidden");
+        showTease("tease-2", "好啦，只能选“爱”啦～");
+      }
+    }
+
+    no.addEventListener("mouseenter", escape);
+    no.addEventListener("touchstart", escape, { passive: false });
+    no.addEventListener("click", escape);
+
+    // 鼠标靠近即逃跑
+    window.addEventListener("mousemove", (e) => {
+      if (no.classList.contains("hidden")) return;
+      const r = no.getBoundingClientRect();
+      const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+      const d = Math.hypot(e.clientX - cx, e.clientY - cy);
+      if (d < 120) escape();
+    });
+
+    yes.addEventListener("click", async () => {
+      playChime();
+      heartRain(70);
+      confetti(90);
+      await showSuccess(CONFIG.levels[1].successText, 2000);
+      $("success-msg").classList.remove("show");
+      reset();
+      showLevel(2);
+      refreshLevel3();
+    });
+  })();
+
+  // ---------- 第3关 ----------
+  function daysBetween(a, b){
+    return Math.floor((b - a) / (1000 * 60 * 60 * 24));
+  }
+
+  // 读取情侣名字：优先手机本地，其次 CONFIG 占位名
+  function getCouple(){
+    try {
+      const s = localStorage.getItem("couple_names");
+      if (s) {
+        const o = JSON.parse(s);
+        if (o && (o.myName || o.otherName)) {
+          return { myName: o.myName || "我", otherName: o.otherName || "宝贝" };
+        }
+      }
+    } catch(e){}
+    return { myName: CONFIG.couple.myName, otherName: CONFIG.couple.herName };
+  }
+
+  // 首次打开：填写名字
+  function initSetup(){
+    let saved = null;
+    try { saved = JSON.parse(localStorage.getItem("couple_names")); } catch(e){}
+    if (saved && (saved.myName || saved.otherName)) {
+      $("setup").classList.add("hidden");
+      return;
+    }
+    function finish(me, other){
+      localStorage.setItem("couple_names", JSON.stringify({ myName: me, otherName: other }));
+      $("setup").classList.add("hidden");
+      refreshLevel3();
+    }
+    $("setup-go").addEventListener("click", () => {
+      finish($("setup-me").value.trim() || "我", $("setup-other").value.trim() || "宝贝");
+    });
+    $("setup-skip").addEventListener("click", () => finish("我", "宝贝"));
+  }
+
+  function refreshLevel3(){
+    const input = $("date-input");
+    const couple = getCouple();
+    let start = input.value || localStorage.getItem("our_start_date") || CONFIG.couple.startDate || "";
+    input.value = start;
+
+    $("card-names").textContent = couple.myName + " ❤️ " + couple.otherName;
+
+    if (!start) {
+      $("days-num").textContent = "选个日子，我来帮你们数天数～";
+      $("days-line").textContent = "";
+      $("card-days").textContent = "?";
+      $("card-since").textContent = "还没选日子哦";
+      $("card-apart").textContent = "?";
+      return;
+    }
+
+    localStorage.setItem("our_start_date", start);
+
+    const startD = new Date(start + "T00:00:00");
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const together = daysBetween(startD, today);
+    const apartD = new Date((CONFIG.couple.apartDate || start) + "T00:00:00");
+    const apart = daysBetween(apartD, today);
+
+    const togetherTxt = together >= 0 ? together : 0;
+    const apartTxt = apart >= 0 ? apart : togetherTxt;
+
+    $("days-num").textContent = "已经在一起 " + togetherTxt + " 天啦！";
+    $("days-line").textContent = "异地 " + apartTxt + " 天，想你无数次，爱你更多次 ❤️";
+
+    $("card-days").textContent = togetherTxt;
+    $("card-since").textContent = "始于 " + start;
+    $("card-apart").textContent = apartTxt;
+  }
+
+  function loadScript(src){
+    return new Promise((resolve) => {
+      const s = document.createElement("script");
+      s.src = src;
+      s.onload = () => resolve(true);
+      s.onerror = () => resolve(false);
+      document.head.appendChild(s);
+    });
+  }
+
+  async function generateCard(){
+    if (!$("date-input").value) {
+      alert("先选个纪念日嘛～");
+      return;
+    }
+    const btn = $("btn-share");
+    btn.disabled = true;
+    try {
+      if (!window.html2canvas) {
+        await loadScript("https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js");
+      }
+      if (!window.html2canvas) {
+        alert("截图组件加载失败，请检查网络后重试～");
+        return;
+      }
+      const card = $("share-card");
+      const canvas = await window.html2canvas(card, {
+        scale: 3,
+        backgroundColor: null,
+        useCORS: true,
+        logging: false
+      });
+      const url = canvas.toDataURL("image/png");
+
+      // 尝试直接下载
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "我们的纪念日.png";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      // 展示在弹层里，方便手机上长按保存
+      $("share-img").src = url;
+      $("share-modal").classList.add("show");
+    } catch (err) {
+      alert("生成失败，请重试～");
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function initLevel3(){
+    $("date-input").addEventListener("change", refreshLevel3);
+    $("btn-share").addEventListener("click", generateCard);
+    $("share-modal").addEventListener("click", function(e){
+      if (e.target === this) this.classList.remove("show");
+    });
+    refreshLevel3();
+  }
+
+  // ---------- 桌面窗口缩放时，把已逃跑到固定定位的按钮拉回可视区 ----------
+  window.addEventListener("resize", () => {
+    ["no-1","no-2"].forEach(id => {
+      const el = $(id);
+      if (el.style.position !== "fixed") return;
+      const w = el.offsetWidth || 90, h = el.offsetHeight || 44;
+      const x = parseFloat(el.style.left) || 0, y = parseFloat(el.style.top) || 0;
+      el.style.left = Math.min(Math.max(x, 14), Math.max(14, window.innerWidth - w - 14)) + "px";
+      el.style.top = Math.min(Math.max(y, 14), Math.max(14, window.innerHeight - h - 14)) + "px";
+    });
+  });
+
+  // ---------- 启动 ----------
+  initBgHearts();
+  initLevel3();
+  initSetup();
+})();
+</script>
+</body>
+</html>
