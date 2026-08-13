@@ -40,6 +40,17 @@
     100%{ transform:translateY(-115vh) rotate(20deg) scale(1.15); opacity:0; }
   }
 
+  /* ===== 每日一句情话 ===== */
+  .daily-quote{
+    position:fixed; left:50%; transform:translateX(-50%);
+    bottom:calc(10px + env(safe-area-inset-bottom, 0px));
+    z-index:2; pointer-events:none;
+    font-size:clamp(13px,3.4vw,15px); color:#a05a86;
+    background:rgba(255,255,255,.62); backdrop-filter:blur(5px);
+    padding:7px 16px; border-radius:999px;
+    max-width:92vw; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+
   /* ===== 关卡 ===== */
   .level{
     position:absolute; inset:0; z-index:1;
@@ -69,8 +80,8 @@
   .btn:active{ transform:scale(.94); }
 
   .btn-yes{
-    font-size:clamp(22px,5.4vw,30px); font-weight:700; color:#fff;
-    padding:18px 46px; border-radius:999px;
+    font-size:clamp(20px,5vw,26px); font-weight:700; color:#fff;
+    padding:15px 38px; border-radius:999px;
     background:linear-gradient(135deg,#ff8fb3 0%,var(--pink) 50%,var(--pink-deep) 100%);
     box-shadow:0 10px 28px rgba(255,45,106,.45), 0 2px 8px rgba(255,45,106,.3);
     animation:heartbeat 1.6s ease-in-out infinite;
@@ -85,8 +96,8 @@
   }
 
   .btn-no{
-    font-size:clamp(15px,3.8vw,18px); color:#8a93a5;
-    padding:13px 26px; border-radius:999px;
+    font-size:clamp(20px,5vw,26px); color:#8a93a5;
+    padding:15px 38px; border-radius:999px;
     background:#f1f3f7; border:1px solid #e3e7ee;
     box-shadow:0 2px 8px rgba(0,0,0,.05);
   }
@@ -150,7 +161,12 @@
     outline:none; width:220px; margin-bottom:18px;
   }
   .days-num{ font-size:clamp(26px,7vw,40px); font-weight:700; color:var(--pink-deep); line-height:1.1; }
-  .days-line{ font-size:clamp(15px,4vw,18px); color:#9a6a8f; margin:8px 0 22px; }
+  .days-line{ font-size:clamp(15px,4vw,18px); color:#9a6a8f; margin:8px 0 10px; }
+  .milestone{
+    font-size:clamp(14px,3.9vw,16px); color:#e2477a; font-weight:700;
+    background:rgba(255,255,255,.6); border-radius:14px;
+    padding:7px 16px; margin:0 0 22px;
+  }
   .far-line{ font-size:clamp(14px,3.8vw,16px); color:#8a5d7d; max-width:460px; line-height:1.7; margin-bottom:22px; }
 
   /* 分享卡片预览 */
@@ -234,12 +250,17 @@
 
   <div id="bg-hearts"></div>
 
+  <!-- 每日一句情话 -->
+  <div class="daily-quote" id="daily-quote"></div>
+
   <!-- 第1关 -->
   <section class="level active" id="level-1">
     <div class="q">想不想我？</div>
     <div class="sub">（不准说不想哦）</div>
     <div class="btn-row">
-      <button class="btn btn-yes" id="yes-1">想 ❤️</button>
+      <div class="yes-wrap" id="yes-1-wrap">
+        <button class="btn btn-yes" id="yes-1">想 ❤️</button>
+      </div>
       <button class="btn btn-no" id="no-1">不想 💔</button>
     </div>
     <div class="tease" id="tease-1"></div>
@@ -266,6 +287,7 @@
     <input type="date" class="date-input" id="date-input" />
     <div class="days-num" id="days-num">已经在一起 0 天啦！</div>
     <div class="days-line" id="days-line">异地 0 天，想你无数次，爱你更多次 ❤️</div>
+    <div class="milestone" id="milestone"></div>
     <div class="far-line">虽然暂时不能见面，但爱没有距离。<br/>等我，很快就来找你！</div>
 
     <!-- 分享卡片（即预览） -->
@@ -276,7 +298,7 @@
       <div class="big-days" id="card-days">0</div>
       <div class="unit">天在一起啦</div>
       <div class="since" id="card-since">始于 ❤️</div>
-      <div class="quote">异地 <span id="card-apart">0</span> 天，想你无数次，爱你更多次。虽然暂时不能见面，但爱没有距离 ❤️</div>
+      <div class="quote" id="card-quote">💌 今日情话</div>
     </div>
 
     <button class="btn-share" id="btn-share">生成分享卡片</button>
@@ -321,6 +343,24 @@
         ],
         successText: "我就知道，我也超级爱你 ❤️"
       }
+    ],
+    quotes: [
+      "今天的我也比昨天更想你",
+      "隔着屏幕抱不到你，但心一直在一起",
+      "距离再远，也远不过我想你的心",
+      "想和你分享每一顿饭、每一片云",
+      "你在的城市，是我最想去的地方",
+      "每天醒来的第一件事，就是想你",
+      "等见面那天，一定要抱很久很久",
+      "再远的距离，也挡不住我爱你",
+      "想你是日常，爱你是习惯",
+      "熬过异地，就是一生",
+      "你的晚安，是我最好的安眠药",
+      "世界很大，但我只想有你",
+      "虽然异地，但爱没有时差",
+      "想你了，现在立刻马上",
+      "攒了好多话，见面时慢慢说给你听",
+      "你去哪我都顺路，你在的地方就是方向"
     ]
   };
   // =======================================================
@@ -445,9 +485,22 @@
 
   function showSuccess(text, ms){
     const msg = $("success-msg");
-    $("success-text").textContent = text;
+    const el = $("success-text");
+    const chars = Array.from(text);  // 逐字（emoji 也算一个字）
+    let i = 0;
+    el.textContent = "";
     msg.classList.add("show");
-    return new Promise((res) => setTimeout(res, ms));
+    return new Promise((res) => {
+      function type(){
+        if (i < chars.length) {
+          el.textContent += chars[i++];
+          setTimeout(type, 80);
+        } else {
+          setTimeout(res, ms);
+        }
+      }
+      type();
+    });
   }
 
   // ---------- 关卡切换 ----------
@@ -457,43 +510,17 @@
     });
   }
 
-  // ---------- 第1关 ----------
-  (function initLevel1(){
-    const no = $("no-1"), yes = $("yes-1");
-    let last = 0;
-    function run(e){
-      if (e && e.cancelable) e.preventDefault();
-      const now = Date.now();
-      if (now - last < 160) return;
-      last = now;
-      teleport(no, yes);
-      showTease("tease-1", pick(CONFIG.levels[0].noEscapeTexts));
-    }
-    no.addEventListener("mouseenter", run);
-    no.addEventListener("touchstart", run, { passive: false });
-    no.addEventListener("click", run);
-
-    yes.addEventListener("click", async () => {
-      playChime();
-      heartRain(60);
-      await showSuccess(CONFIG.levels[0].successText, 1000);
-      $("success-msg").classList.remove("show");
-      showLevel(1);
-    });
-  })();
-
-  // ---------- 第2关 ----------
-  (function initLevel2(){
-    const no = $("no-2"), yes = $("yes-2"), wrap = $("yes-2-wrap");
-    let yesScale = 1, noScale = 1;
-    let last = 0;
+  // ---------- 通用“逃跑”玩法（第1、2关共用） ----------
+  function makeDodger(opts){
+    const no = $(opts.noId), yes = $(opts.yesId), wrap = $(opts.wrapId);
+    const baseW = yes.offsetWidth || 120;  // 初始宽度（不受缩放影响）
+    let yesScale = 1, noScale = 1, escapeCount = 0, last = 0;
 
     function reset(){
-      yesScale = 1; noScale = 1;
+      yesScale = 1; noScale = 1; escapeCount = 0;
       wrap.style.transform = "scale(1)";
       no.style.transform = "rotate(0deg) scale(1)";
-      no.style.position = "";
-      no.style.left = ""; no.style.top = "";
+      no.style.position = ""; no.style.left = ""; no.style.top = "";
       no.classList.remove("hidden");
     }
 
@@ -503,21 +530,22 @@
       const now = Date.now();
       if (now - last < 200) return;
       last = now;
+      escapeCount++;
 
-      // 缩放变化
-      yesScale = Math.min(yesScale * 1.15, 3.2);
-      noScale = Math.max(noScale * 0.9, 0.2);
+      // 每次逃跑：yes 放大、no 缩小
+      yesScale = Math.min(yesScale * 1.15, 3.5);
+      noScale = Math.max(noScale * 0.9, 0.25);
       wrap.style.transform = "scale(" + yesScale + ")";
       no.style.transform = "rotate(" + (Math.random() * 15 * (Math.random() > .5 ? 1 : -1)).toFixed(1) + "deg) scale(" + noScale + ")";
 
       teleport(no, yes);
-      showTease("tease-2", pick(CONFIG.levels[1].noEscapeTexts));
+      showTease(opts.teaseId, pick(opts.texts));
 
-      // 当“爱”大到一定程度，“不爱”消失（上限 340px，手机/电脑都适用）
-      const maxW = Math.min(VIEWPORT().w * 0.6, 340);
-      if (yes.getBoundingClientRect().width >= maxW) {
+      // 逃跑够多次后：yes 满屏、no 消失
+      const maxW = Math.min(VIEWPORT().w * 0.9, 420);
+      if (escapeCount >= 5 && baseW * yesScale >= maxW) {
         no.classList.add("hidden");
-        showTease("tease-2", "好啦，只能选“爱”啦～");
+        showTease(opts.teaseId, "好啦，只能选它啦～");
       }
     }
 
@@ -525,30 +553,78 @@
     no.addEventListener("touchstart", escape, { passive: false });
     no.addEventListener("click", escape);
 
-    // 鼠标靠近即逃跑
-    window.addEventListener("mousemove", (e) => {
-      if (no.classList.contains("hidden")) return;
-      const r = no.getBoundingClientRect();
-      const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-      const d = Math.hypot(e.clientX - cx, e.clientY - cy);
-      if (d < 120) escape();
-    });
+    // 第2关额外：鼠标靠近即逃跑
+    if (opts.near) {
+      window.addEventListener("mousemove", (e) => {
+        if (no.classList.contains("hidden")) return;
+        const r = no.getBoundingClientRect();
+        const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+        if (Math.hypot(e.clientX - cx, e.clientY - cy) < 120) escape();
+      });
+    }
 
     yes.addEventListener("click", async () => {
       playChime();
-      heartRain(70);
-      confetti(90);
-      await showSuccess(CONFIG.levels[1].successText, 2000);
+      heartRain(opts.rain || 60);
+      if (opts.confetti) confetti(opts.confetti);
+      await showSuccess(opts.successText, opts.successMs);
       $("success-msg").classList.remove("show");
       reset();
-      showLevel(2);
-      refreshLevel3();
+      opts.onDone();
     });
-  })();
+
+    return { reset };
+  }
+
+  // 第1关：想不想我？
+  makeDodger({
+    noId: "no-1", yesId: "yes-1", wrapId: "yes-1-wrap",
+    teaseId: "tease-1", texts: CONFIG.levels[0].noEscapeTexts,
+    successText: CONFIG.levels[0].successText, successMs: 1000, rain: 60,
+    onDone: () => showLevel(1)
+  });
+
+  // 第2关：爱不爱我？
+  makeDodger({
+    noId: "no-2", yesId: "yes-2", wrapId: "yes-2-wrap",
+    teaseId: "tease-2", texts: CONFIG.levels[1].noEscapeTexts,
+    successText: CONFIG.levels[1].successText, successMs: 2000, rain: 70, confetti: 90,
+    near: true,
+    onDone: () => { showLevel(2); refreshLevel3(); }
+  });
 
   // ---------- 第3关 ----------
   function daysBetween(a, b){
     return Math.floor((b - a) / (1000 * 60 * 60 * 24));
+  }
+
+  // 每日一句情话：按本地日期取一句，每天不同
+  function getTodayQuote(){
+    const q = CONFIG.quotes || [];
+    if (!q.length) return "";
+    const d = new Date();
+    const n = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+    return q[n % q.length];
+  }
+
+  // 特殊纪念日里程碑：返回下一个（或今天刚好是）的里程碑
+  function getMilestoneInfo(days){
+    if (days < 0) return null;
+    const specials = [
+      { d: 100,  label: "100 天（百日）" },
+      { d: 200,  label: "200 天" },
+      { d: 365,  label: "一周年" },
+      { d: 520,  label: "520 天（我爱你）" },
+      { d: 999,  label: "999 天（长长久久）" },
+      { d: 1000, label: "1000 天" },
+      { d: 1314, label: "1314 天（一生一世）" }
+    ];
+    const list = specials.slice();
+    for (let y = 2; y <= 20; y++) list.push({ d: 365 * y, label: y + " 周年" });
+    list.sort((a, b) => a.d - b.d);
+    for (const m of list) if (m.d === days) return { today: true,  label: m.label, remaining: 0 };
+    for (const m of list) if (m.d > days)   return { today: false, label: m.label, remaining: m.d - days };
+    return null;
   }
 
   // 读取情侣名字：优先手机本地，其次 CONFIG 占位名
@@ -595,9 +671,10 @@
     if (!start) {
       $("days-num").textContent = "选个日子，我来帮你们数天数～";
       $("days-line").textContent = "";
+      $("milestone").textContent = "";
       $("card-days").textContent = "?";
       $("card-since").textContent = "还没选日子哦";
-      $("card-apart").textContent = "?";
+      $("card-quote").textContent = getTodayQuote();
       return;
     }
 
@@ -610,15 +687,30 @@
     const apartD = new Date((CONFIG.couple.apartDate || start) + "T00:00:00");
     const apart = daysBetween(apartD, today);
 
-    const togetherTxt = together >= 0 ? together : 0;
-    const apartTxt = apart >= 0 ? apart : togetherTxt;
+    // 未来日期：还没到呢
+    if (together < 0) {
+      $("days-num").textContent = "还有 " + (-together) + " 天就在一起啦～";
+      $("days-line").textContent = "";
+      $("milestone").textContent = "";
+      $("card-days").textContent = -together;
+      $("card-since").textContent = "即将始于 " + start;
+      $("card-quote").textContent = getTodayQuote();
+      return;
+    }
 
-    $("days-num").textContent = "已经在一起 " + togetherTxt + " 天啦！";
+    const apartTxt = apart >= 0 ? apart : together;
+    $("days-num").textContent = "已经在一起 " + together + " 天啦！";
     $("days-line").textContent = "异地 " + apartTxt + " 天，想你无数次，爱你更多次 ❤️";
 
-    $("card-days").textContent = togetherTxt;
+    // 里程碑
+    const ms = getMilestoneInfo(together);
+    $("milestone").textContent = ms
+      ? (ms.today ? "🎉 今天就是 " + ms.label + " 纪念日！" : "下一个里程碑：" + ms.label + "，还有 " + ms.remaining + " 天 💕")
+      : "";
+
+    $("card-days").textContent = together;
     $("card-since").textContent = "始于 " + start;
-    $("card-apart").textContent = apartTxt;
+    $("card-quote").textContent = getTodayQuote();
   }
 
   function loadScript(src){
@@ -698,6 +790,7 @@
   initBgHearts();
   initLevel3();
   initSetup();
+  $("daily-quote").textContent = "💌 " + getTodayQuote();
 })();
 </script>
 </body>
